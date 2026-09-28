@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#123c44">
+  <meta name="description" content="广东医科大学东莞校区校园灭蚊隐患排查与任务调度系统">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23123c44'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%235bd3c7' stroke-width='4'/%3E%3Cpath d='M32 17v30M17 32h30' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='41' cy='23' r='5' fill='%23ffb44c'/%3E%3C/svg%3E">
+  <title>校园灭蚊排查系统</title>
+  <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+  <div class="app-shell">
+    <aside class="sidebar" aria-label="主导航">
+      <a class="brand" href="#overview" aria-label="校园灭蚊排查系统首页">
+        <span class="brand-mark" aria-hidden="true"><span></span></span>
+        <span><b>灭蚊排查</b><small>东莞校区</small></span>
+      </a>
+      <nav>
+        <button class="nav-item active" data-view="overview"><span class="nav-icon">⌂</span>工作台</button>
+        <button class="nav-item" data-view="points"><span class="nav-icon">⌖</span>隐患点位</button>
+        <button class="nav-item" data-view="tasks"><span class="nav-icon">≡</span>排查任务</button>
+        <button class="nav-item" data-view="logs"><span class="nav-icon">◷</span>排查日志</button>
+      </nav>
+      <div class="sidebar-note">
+        <span>数据状态</span>
+        <b><i></i> 已保存在本机</b>
+      </div>
+    </aside>
+
+    <main>
+      <header class="topbar">
+        <button class="menu-button" id="menuButton" aria-label="打开导航">☰</button>
+        <div>
+          <p id="todayLabel">校园环境风险总览</p>
+          <h1 id="pageTitle">工作台</h1>
+        </div>
+        <div class="top-actions">
+          <label class="search-box">
+            <span aria-hidden="true">⌕</span>
+            <input id="globalSearch" type="search" placeholder="搜索片区或排查人" autocomplete="off">
+          </label>
+          <button class="primary-button" id="addPointButton"><span>＋</span> 新增点位</button>
+        </div>
+      </header>
+
+      <section class="view active" id="overviewView" aria-labelledby="pageTitle">
+        <div class="overview-grid">
+          <section class="risk-hero">
+            <div class="hero-copy">
+              <span class="eyebrow">今日排查重点</span>
+              <h2 id="heroTitle">中心人工湖</h2>
+              <p id="heroNote">大面积静态水域，蚊虫幼虫主要滋生地</p>
+              <div class="hero-meta"><span class="risk-pill high">高危</span><span id="heroDate">上次排查 2026-09-01</span></div>
+              <button class="light-button" id="startHeroTask">记录本次排查</button>
+            </div>
+            <div class="radar" aria-hidden="true">
+              <span class="radar-ring ring-1"></span><span class="radar-ring ring-2"></span><span class="radar-ring ring-3"></span>
+              <span class="radar-sweep"></span><span class="radar-dot dot-1"></span><span class="radar-dot dot-2"></span><span class="radar-dot dot-3"></span>
+            </div>
+          </section>
+
+          <section class="metrics" aria-label="隐患统计">
+            <article><span class="metric-icon coral">!</span><div><b id="metricHigh">4</b><small>高危片区</small></div><em>需优先</em></article>
+            <article><span class="metric-icon amber">◒</span><div><b id="metricPending">7</b><small>未消杀</small></div><em>待处理</em></article>
+            <article><span class="metric-icon teal">✓</span><div><b id="metricDone">0</b><small>已消杀</small></div><em>已完成</em></article>
+          </section>
+
+          <section class="panel priority-panel">
+            <div class="section-heading">
+              <div><span class="eyebrow dark">优先队列</span><h2>下一批排查任务</h2></div>
+              <button class="text-button" data-go="tasks">查看全部 <span>→</span></button>
+            </div>
+            <div id="priorityList" class="priority-list"></div>
+          </section>
+
+          <section class="panel distribution-panel">
+            <div class="section-heading"><div><span class="eyebrow dark">风险分布</span><h2>七大片区概况</h2></div></div>
+            <div class="donut-layout">
+              <div class="donut" id="riskDonut"><span><b id="metricTotal">7</b><small>全部点位</small></span></div>
+              <div class="legend"><p><i class="high-dot"></i><span>高危</span><b id="legendHigh">4</b></p><p><i class="mid-dot"></i><span>中危</span><b id="legendMid">3</b></p><p><i class="low-dot"></i><span>低危</span><b id="legendLow">0</b></p></div>
+            </div>
+          </section>
+        </div>
+
+        <section class="panel table-panel">
+          <div class="section-heading">
+            <div><span class="eyebrow dark">最近更新</span><h2>隐患点位</h2></div>
+            <div class="table-tools">
+              <select id="riskFilter" aria-label="按风险等级筛选"><option value="all">全部风险</option><option value="1">高危</option><option value="2">中危</option><option value="3">低危</option></select>
+              <button class="text-button" data-go="points">管理点位 <span>→</span></button>
+            </div>
+          </div>
+          <div class="table-wrap"><table><thead><tr><th>编号</th><th>片区名称</th><th>风险</th><th>排查人</th><th>最近排查</th><th>消杀状态</th></tr></thead><tbody id="overviewTableBody"></tbody></table></div>
+        </section>
+      </section>
+
+      <section class="view" id="pointsView">
+        <section class="panel page-panel">
+          <div class="page-intro">
+            <div><span class="eyebrow dark">顺序表管理</span><h2>隐患点位台账</h2><p>维护片区基础信息，支持查找、排序和消杀状态更新。</p></div>
+            <div class="page-controls"><label class="inline-search"><span>⌕</span><input id="pointSearch" type="search" placeholder="输入编号、片区或排查人"></label><select id="pointSort" aria-label="点位排序"><option value="priority">按处理优先级</option><option value="id">按编号升序</option><option value="risk">按风险等级</option><option value="date">按排查日期</option></select></div>
+          </div>
+          <div class="point-grid" id="pointGrid"></div>
+        </section>
+      </section>
+
+      <section class="view" id="tasksView">
+        <div class="task-layout">
+          <section class="panel page-panel">
+            <div class="page-intro"><div><span class="eyebrow dark">优先队列</span><h2>今日排查任务</h2><p>高危未消杀优先，中危未消杀其次，已处理区域进入常规复查。</p></div><button class="secondary-button" id="resetToday">恢复默认数据</button></div>
+            <div class="task-list" id="taskList"></div>
+          </section>
+          <aside class="panel rules-card">
+            <span class="eyebrow dark">调度规则</span><h2>优先级说明</h2>
+            <ol><li><b>高危＋未消杀</b><span>立即安排现场处理</span></li><li><b>中危＋未消杀</b><span>纳入下一批次排查</span></li><li><b>低危／已消杀</b><span>按计划进行常规复查</span></li></ol>
+            <div class="rule-foot"><span>队列自动更新</span><b id="taskCompletion">0 / 7 已处理</b></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="view" id="logsView">
+        <div class="log-layout">
+          <section class="panel page-panel">
+            <div class="page-intro"><div><span class="eyebrow dark">单链表记录</span><h2>排查日志</h2><p>按时间倒序保存每次检查、处理方式与整改结果。</p></div><button class="primary-button" id="addLogButton">＋ 新增日志</button></div>
+            <div class="log-empty" id="logEmpty"><span>◷</span><h3>还没有排查日志</h3><p>完成第一次现场检查后，在这里录入问题和处理结果。</p><button class="secondary-button" id="emptyAddLog">记录第一次排查</button></div>
+            <div class="log-list" id="logList"></div>
+          </section>
+          <aside class="panel log-filter-card">
+            <span class="eyebrow dark">快速筛选</span><h2>按片区查看</h2>
+            <select id="logSiteFilter" aria-label="按片区筛选日志"><option value="all">全部片区</option></select>
+            <div class="log-stat"><small>日志总数</small><b id="logCount">0</b></div>
+            <div class="log-stat"><small>完成整改</small><b id="resolvedCount">0</b></div>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+  <dialog id="pointDialog" class="app-dialog">
+    <form method="dialog" id="pointForm">
+      <div class="dialog-heading"><div><span class="eyebrow dark">点位信息</span><h2 id="pointDialogTitle">新增点位</h2></div><button type="button" class="icon-button" data-close="pointDialog" aria-label="关闭">×</button></div>
+      <input type="hidden" id="originalPointId">
+      <div class="form-grid">
+        <label><span>点位编号</span><input id="pointId" type="number" min="1" max="999" required></label>
+        <label><span>风险等级</span><select id="pointRisk" required><option value="1">高危</option><option value="2">中危</option><option value="3">低危</option></select></label>
+        <label class="wide"><span>片区名称</span><input id="pointLocation" maxlength="50" required></label>
+        <label><span>排查人</span><input id="pointChecker" maxlength="50" required></label>
+        <label><span>排查日期</span><input id="pointDate" type="date" required></label>
+        <label><span>消杀状态</span><select id="pointStatus"><option value="0">未消杀</option><option value="1">已消杀</option></select></label>
+        <label class="wide"><span>隐患备注</span><textarea id="pointNote" rows="3" maxlength="120" required></textarea></label>
+      </div>
+      <div class="dialog-actions"><button type="button" class="secondary-button" data-close="pointDialog">取消</button><button type="submit" class="primary-button">保存点位</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="logDialog" class="app-dialog">
+    <form method="dialog" id="logForm">
+      <div class="dialog-heading"><div><span class="eyebrow dark">现场记录</span><h2>新增排查日志</h2></div><button type="button" class="icon-button" data-close="logDialog" aria-label="关闭">×</button></div>
+      <div class="form-grid">
+        <label class="wide"><span>排查片区</span><select id="logSite" required></select></label>
+        <label><span>排查时间</span><input id="logTime" type="datetime-local" required></label>
+        <label><span>本次结果</span><select id="logResult"><option value="0">未完成整改</option><option value="1">已完成整改</option></select></label>
+        <label class="wide"><span>发现问题</span><textarea id="logProblem" rows="3" maxlength="160" required></textarea></label>
+        <label class="wide"><span>消杀处理方式</span><textarea id="logHandle" rows="3" maxlength="160" required></textarea></label>
+      </div>
+      <div class="dialog-actions"><button type="button" class="secondary-button" data-close="logDialog">取消</button><button type="submit" class="primary-button">保存日志</button></div>
+    </form>
+  </dialog>
+
+  <dialog id="deleteDialog" class="app-dialog compact-dialog">
+    <form method="dialog" id="deleteForm"><div class="dialog-heading"><div><span class="eyebrow danger-text">删除确认</span><h2>确定删除这个点位？</h2></div><button type="button" class="icon-button" data-close="deleteDialog" aria-label="关闭">×</button></div><p id="deleteMessage">删除后，与该点位关联的日志也会一并移除。</p><input type="hidden" id="deletePointId"><div class="dialog-actions"><button type="button" class="secondary-button" data-close="deleteDialog">取消</button><button type="submit" class="danger-button">确认删除</button></div></form>
+  </dialog>
+  <div id="toastRegion" class="toast-region" aria-live="polite"></div>
+  <script src="./app.js"></script>
+</body>
+</html>
