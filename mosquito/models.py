@@ -3,6 +3,28 @@ import uuid
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
+from django.conf import settings
+
+
+class CampusMap(models.Model):
+    name = models.CharField(max_length=80, verbose_name="地图名称")
+    image = models.ImageField(upload_to="campus-maps/", blank=True, verbose_name="地图图片")
+    is_active = models.BooleanField(default=True, verbose_name="启用")
+
+    class Meta:
+        verbose_name = verbose_name_plural = "校园地图"
+
+    def __str__(self):
+        return self.name
+
+
+class AccountProfile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    role = models.CharField(max_length=10, choices=[("student", "学生"), ("teacher", "教师")])
+    identifier = models.CharField(max_length=32, verbose_name="学号/手机号")
+
+    class Meta:
+        verbose_name = verbose_name_plural = "注册身份"
 
 
 class InspectionPoint(models.Model):
@@ -82,6 +104,7 @@ class InspectionLog(models.Model):
 
 
 class CampusArea(models.Model):
+    campus_map = models.ForeignKey(CampusMap, null=True, blank=True, on_delete=models.PROTECT, verbose_name="所属地图")
     CATEGORY_CHOICES = [
         ("dining", "饭堂及周边"),
         ("dorm", "宿舍楼及周边"),
@@ -114,6 +137,7 @@ class CampusArea(models.Model):
 
 
 class AreaTreatment(models.Model):
+    recorded_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="登记账号")
     METHOD_CHOICES = [
         ("cleanup", "清除积水"),
         ("spray", "专业喷雾消杀"),
@@ -171,6 +195,7 @@ class DormRoom(models.Model):
 
 
 class DormRecord(models.Model):
+    submitted_by = models.ForeignKey(settings.AUTH_USER_MODEL, null=True, blank=True, on_delete=models.SET_NULL, verbose_name="提交账号")
     KIND_CHOICES = [("pickup", "蚊片领取"), ("treatment", "宿舍灭蚊处理")]
     STATUS_CHOICES = [("pending", "待核对"), ("verified", "已核对"), ("rejected", "未通过")]
     METHOD_CHOICES = [

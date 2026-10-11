@@ -6,12 +6,16 @@ from django.utils.html import format_html
 from .models import (
     AreaTreatment, CampusArea, DormCampaign, DormRecord, DormRoom,
     HazardReport, InspectionLog, InspectionPoint,
+    CampusMap, AccountProfile,
 )
 
 
 admin.site.site_header = "校园防蚊协同排查｜运营后台"
 admin.site.site_title = "校园防蚊后台"
 admin.site.index_title = "线索与排查管理（演示系统）"
+
+admin.site.register(CampusMap)
+admin.site.register(AccountProfile)
 
 
 class HazardReportAdminForm(forms.ModelForm):
@@ -76,7 +80,7 @@ class CampusAreaAdmin(admin.ModelAdmin):
     list_filter = ("category", "is_active", "is_demo")
     search_fields = ("name", "note")
     fieldsets = (("区域信息", {"fields": ("name", "category", "note", "is_active", "is_demo")}),
-                 ("地图与计划", {"fields": ("map_x", "map_y", "interval_days")}))
+                 ("地图与计划", {"fields": ("campus_map", "map_x", "map_y", "interval_days")}))
 
 
 @admin.register(AreaTreatment)

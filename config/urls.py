@@ -3,9 +3,16 @@ from django.urls import path
 from django.views.generic import RedirectView
 
 from mosquito import views
+from mosquito import portal
 
 
 urlpatterns = [
+    path("account/", portal.account_page),
+    path("account/logout/", portal.logout_view),
+    path("api/session/", portal.session_info),
+    path("manage/", portal.manage),
+    path("manage/review/<uuid:record_id>/", portal.review_record),
+    path("maps/<int:map_id>/image/", portal.map_image),
     path("admin/report-photos/<uuid:report_id>/", views.report_photo, name="report-photo"),
     path("admin/dorm-record-photos/<uuid:record_id>/", views.dorm_record_photo, name="dorm-record-photo"),
     path("admin/", admin.site.urls),

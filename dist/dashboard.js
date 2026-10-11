@@ -8,6 +8,7 @@ let rooms = [];
 let selectedAreaId = null;
 let currentCampaign = null;
 let previewUrl = null;
+let canManage = false;
 
 function escapeHtml(value) {
   const node = document.createElement("div");
@@ -82,7 +83,8 @@ function renderAreaDetail() {
     <h3>${escapeHtml(area.name)} <span class="status-pill ${escapeHtml(area.status)}">${AREA_STATUS[area.status] || "暂无记录"}</span></h3>
     <p>${escapeHtml(area.note || area.category)}</p>
     <div class="detail-grid"><div><span>最近处理</span><strong>${escapeHtml(area.lastTreatedOn || "未记录")}</strong></div><div><span>处理方式</span><strong>${escapeHtml(area.lastMethod || "—")}</strong></div><div><span>下次复查</span><strong>${escapeHtml(area.nextDueOn || "待首次处理")}</strong></div><div><span>计划间隔</span><strong>${escapeHtml(area.intervalDays)} 天</strong></div></div>
-    <div class="history-title">处理记录</div>${history}`;
+    <div class="history-title">处理记录</div>${history}
+    ${canManage ? `<p><a href="/manage/?action=treatment&area=${area.id}">＋ 登记本区域消杀</a> · <a href="/manage/?action=area&id=${area.id}">编辑点位 / 周期</a></p>` : '<p><a href="/account/">管理者登录后登记消杀</a></p>'}`;
 }
 
 function selectArea(id) {
@@ -102,9 +104,15 @@ $("#areaFilter").addEventListener("change", renderAreas);
 
 async function loadAreas() {
   try {
-    const response = await fetch("/api/areas/", { credentials: "same-origin" });
+    const response = await fetch(`/api/areas/?map=${encodeURIComponent($('#mapSwitch').value)}`, { credentials: "same-origin" });
     if (!response.ok) throw new Error("读取区域失败");
     const data = await response.json();
+    const selectedMap = $('#mapSwitch').value;
+    $('#mapSwitch').innerHTML = data.maps.map(map => `<option value="${escapeHtml(map.id)}">${escapeHtml(map.name)}</option>`).join('');
+    if (data.maps.some(map => map.id === selectedMap)) $('#mapSwitch').value = selectedMap;
+    const map = data.maps.find(map => map.id === $('#mapSwitch').value);
+    $('.map-frame img').src = map.image;
+    $('.map-frame img').alt = map.name;
     areas = data.areas;
     selectedAreaId = areas[0]?.id ?? null;
     renderAreas();
@@ -268,3 +276,9 @@ window.addEventListener("focus", () => { loadAreas(); loadDorms(); renderReceipt
 loadAreas();
 loadDorms();
 renderReceipts();
+$('#mapSwitch').addEventListener('change', loadAreas);
+fetch('/api/session/').then(response => response.json()).then(session => {
+  canManage = session.canManage;
+  $('#accountLink').textContent = session.authenticated ? `${session.name} · 账号` : '登录 / 注册';
+  renderAreaDetail();
+}).catch(() => {});

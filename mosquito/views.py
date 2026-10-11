@@ -14,7 +14,7 @@ from django.utils import timezone
 from django.views.decorators.csrf import ensure_csrf_cookie
 from django.views.decorators.http import require_GET, require_http_methods
 
-from .models import AreaTreatment, CampusArea, DormCampaign, DormRecord, DormRoom, HazardReport
+from .models import AreaTreatment, CampusArea, CampusMap, DormCampaign, DormRecord, DormRoom, HazardReport
 
 
 MAX_PHOTO_BYTES = 5 * 1024 * 1024
@@ -139,6 +139,13 @@ def report_detail(request, report_id):
 @require_GET
 def campus_areas(request):
     areas = CampusArea.objects.filter(is_active=True).prefetch_related("treatments")
+    map_id = request.GET.get("map", "default")
+    if map_id == "default":
+        areas = areas.filter(campus_map__isnull=True)
+    elif map_id.isdigit():
+        areas = areas.filter(campus_map_id=int(map_id))
+    else:
+        return JsonResponse({"message": "无效地图"}, status=400)
     today = timezone.localdate()
     items = []
     for area in areas:
@@ -166,7 +173,10 @@ def campus_areas(request):
                 for item in records[:5]
             ],
         })
-    return JsonResponse({"campus": "广东医科大学东莞校区", "areas": items, "isSchematic": True})
+    maps = [{"id": "default", "name": "东莞校区 · 原始底图", "image": "/static/assets/gdmu-dongguan-campus-2025.jpg"}]
+    maps += [{"id": str(m.id), "name": m.name, "image": f"/maps/{m.id}/image/" if m.image else maps[0]["image"]}
+             for m in CampusMap.objects.filter(is_active=True)]
+    return JsonResponse({"campus": "广东医科大学东莞校区", "areas": items, "maps": maps, "isSchematic": True})
 
 
 def active_campaign():
@@ -225,6 +235,8 @@ def dorm_receipt_json(record):
 
 @require_http_methods(["POST"])
 def dorm_record_collection(request):
+    if not request.user.is_authenticated:
+        return JsonResponse({"message": "请先通过页面顶部登录 / 注册入口登录，再提交宿舍登记"}, status=401)
     if not request.content_type.startswith("multipart/form-data"):
         return JsonResponse({"message": "请使用表单提交"}, status=400)
     campaign = active_campaign()
@@ -260,7 +272,7 @@ def dorm_record_collection(request):
             return JsonResponse({"message": photo_error}, status=400)
     record = DormRecord.objects.create(
         campaign=campaign, room=room, kind=kind, method=method,
-        quantity=quantity, photo=photo, note=note,
+        quantity=quantity, photo=photo, note=note, submitted_by=request.user,
     )
     return JsonResponse(dorm_receipt_json(record), status=201)
 

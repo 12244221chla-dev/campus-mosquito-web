@@ -1,0 +1,14 @@
+{% extends 'mosquito/base.html' %}{% block content %}
+<h1>管理者工作台</h1><p>当前账号：{{ user.username }}。编辑和登记保存到同一个业务数据库，首页刷新后可查看。</p>
+<nav class="management-links"><a href="?action=area">点位编辑</a><a href="?action=map">添加 / 切换地图</a><a href="?action=treatment">消杀登记</a><a href="?action=rooms">楼栋房间管理</a><a href="?action=campaign">领取批次</a><a href="#review">宿舍记录核对</a></nav>
+{% if saved %}<p class="notice-bar" role="status">已保存成功。</p>{% endif %}
+<div class="area-grid"><section class="card portal-form"><h2>{{ title }}</h2>
+<form method="post" enctype="multipart/form-data">{% csrf_token %}{{ form.as_p }}<button class="primary-button" type="submit">保存{% if action == 'treatment' %}消杀记录{% endif %}</button></form></section>
+<section class="card portal-form">{% if action == 'area' %}<h2>在地图上选点</h2><p>先选择所属地图，再点地图位置，坐标会自动填入左侧表单。保存后生效；编辑现有点位也可重新选点。</p><div class="editor-map"><img id="editorMap" src="/static/assets/gdmu-dongguan-campus-2025.jpg" alt="点击选择点位位置"><span id="editorPin" hidden>●</span></div>
+<h3>现有点位（可编辑或取消启用）</h3>{% for area in areas %}<p><a href="?action=area&id={{ area.id }}">{{ area.name }}</a> · {{ area.interval_days }}天 · {% if area.is_active %}启用{% else %}停用{% endif %}</p>{% endfor %}
+{% elif action == 'map' %}<h2>已有自定义地图</h2>{% for map in maps %}<p><a href="?action=map&id={{ map.id }}">{{ map.name }}</a></p>{% empty %}<p>尚未添加地图。原始东莞底图保留在首页。</p>{% endfor %}<p>免费演示服务器的上传图片可能在重启时丢失，请自行保留原图。</p>
+{% elif action == 'rooms' %}<h2>已管理楼栋</h2>{% for building in buildings %}<p>{{ building }}</p>{% endfor %}<p>真实楼栋和房号由管理者导入，不虚构学校宿舍清单。输入8栋、9栋、10栋等名称即可扩展。</p>
+{% else %}<h2>操作说明</h2><p>消杀记录填写实际处理时间、方式、执行人员和说明。计划周期在“点位编辑”设置；领取统计需核对记录后更新。</p>{% endif %}</section></div>
+<section class="card portal-form" id="review"><h2>待核对宿舍登记（最多显示100条）</h2>{% for record in pending %}<article><h3>{{ record.room }} · {{ record.get_kind_display }}</h3><p>{{ record.created_at }} · {{ record.note }}</p>{% if record.photo %}<a href="/admin/dorm-record-photos/{{ record.id }}/" target="_blank">查看照片凭证</a>{% endif %}<form method="post" action="/manage/review/{{ record.id }}/">{% csrf_token %}<input name="note" maxlength="120" placeholder="核对说明"><button name="status" value="verified">核对通过</button><button name="status" value="rejected">退回</button></form></article>{% empty %}<p>暂无待核对记录。</p>{% endfor %}</section>
+<form method="post" action="/account/logout/">{% csrf_token %}<button>退出登录</button></form>
+<script src="/static/editor.js" defer></script>{% endblock %}

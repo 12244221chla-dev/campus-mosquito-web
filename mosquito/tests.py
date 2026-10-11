@@ -13,6 +13,62 @@ from django.urls import reverse
 
 from .admin import HazardReportAdminForm
 from .models import HazardReport, InspectionLog, InspectionPoint
+from .models import CampusMap, CampusArea, AreaTreatment, DormRoom
+
+
+class ManagementPortalTests(TestCase):
+    def setUp(self):
+        self.manager = get_user_model().objects.create_superuser('portal-manager', password='Test-password-827!')
+
+    def test_student_registration_cannot_manage(self):
+        response = self.client.post('/account/?mode=register', {'role': 'student', 'identifier': '20260001',
+            'name': '测试学生', 'password': 'Test-password-827!', 'confirm': 'Test-password-827!'})
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(get_user_model().objects.get(username='student:20260001').is_staff)
+        self.assertEqual(self.client.get('/manage/').status_code, 403)
+
+    def test_teacher_does_not_gain_staff(self):
+        response = self.client.post('/account/?mode=register', {'role': 'teacher', 'identifier': '13800000000',
+            'name': '测试教师', 'password': 'Test-password-827!', 'confirm': 'Test-password-827!'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(self.client.get('/manage/').status_code, 403)
+
+    def test_rooms_and_map_scoping(self):
+        self.client.force_login(self.manager)
+        for building in ['8栋', '9栋', '10栋']:
+            self.assertEqual(self.client.post('/manage/?action=rooms', {'building': building, 'numbers': '101,102', 'is_demo': 'on'}).status_code, 302)
+        self.assertEqual(DormRoom.objects.count(), 6)
+        custom = CampusMap.objects.create(name='管理者自定义地图')
+        CampusArea.objects.create(name='自定义点', map_x=20, map_y=40, campus_map=custom)
+        self.assertEqual(len(self.client.get('/api/areas/').json()['areas']), 0)
+        self.assertEqual(len(self.client.get(f'/api/areas/?map={custom.pk}').json()['areas']), 1)
+
+    def test_point_and_treatment_are_saved(self):
+        self.client.force_login(self.manager)
+        response = self.client.post('/manage/?action=area', {'name': '人工选定区域', 'category': 'dining',
+            'map_x': '12', 'map_y': '34', 'interval_days': '10', 'is_active': 'on', 'is_demo': 'on'})
+        self.assertEqual(response.status_code, 302)
+        area = CampusArea.objects.get(name='人工选定区域')
+        self.assertEqual(area.interval_days, 10)
+        response = self.client.post('/manage/?action=treatment', {'area': area.pk, 'method': 'cleanup',
+            'treated_at': '2026-10-11T12:00', 'operator': '测试班组', 'note': '处理登记测试', 'is_demo': 'on'})
+        self.assertEqual(response.status_code, 302)
+        self.assertEqual(AreaTreatment.objects.get().recorded_by, self.manager)
+        self.assertEqual(len(self.client.get('/api/areas/').json()['areas'][0]['history']), 1)
+
+    def test_staff_without_model_permission_is_denied(self):
+        user = get_user_model().objects.create_user('limited', password='Test-password-827!', is_staff=True)
+        self.client.force_login(user)
+        self.assertEqual(self.client.post('/manage/?action=rooms', {'building': '8栋', 'numbers': '101'}).status_code, 403)
+
+    def test_all_management_forms_render(self):
+        self.client.force_login(self.manager)
+        for action in ['map', 'area', 'treatment', 'rooms', 'campaign']:
+            self.assertEqual(self.client.get(f'/manage/?action={action}').status_code, 200)
+        self.assertEqual(self.client.get('/account/').status_code, 200)
+
+    def test_anonymous_dorm_submission_requires_login(self):
+        self.assertEqual(self.client.post('/api/dorm-records/', {}).status_code, 401)
 
 
 class ReportApiTests(TestCase):

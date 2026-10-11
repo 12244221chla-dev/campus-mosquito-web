@@ -1,0 +1,9 @@
+{% extends 'mosquito/base.html' %}{% block content %}
+<section class="card portal-form"><h1>{% if registering %}注册账号{% else %}账号登录{% endif %}</h1>
+<p>学生以学号登记，教师以手机号登记。身份信息仅用于演示账号，尚未接入学校认证或短信验证。教师注册不自动获得管理权限。</p>
+<form method="post">{% csrf_token %}{% if registering %}{{ form.as_p }}{% else %}
+<label>登录入口<select name="role"><option value="student">学生端 · 学号</option><option value="teacher">教师端 · 手机号</option><option value="manager">管理者 · 后台用户名</option></select></label>
+<label>学号 / 手机号 / 管理员用户名<input name="identifier" required autocomplete="username"></label>
+<label>密码<input name="password" type="password" required autocomplete="current-password"></label>{% endif %}
+{% if error %}<p role="alert">{{ error }}</p>{% endif %}<button class="primary-button" type="submit">{% if registering %}注册{% else %}登录{% endif %}</button></form>
+<p>{% if registering %}<a href="/account/">已有账号，去登录</a>{% else %}<a href="/account/?mode=register">没有账号？注册学生 / 教师账号</a>{% endif %}</p></section>{% endblock %}
