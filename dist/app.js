@@ -1,14 +1,15 @@
 const DEFAULT_POINTS = [
-  { id: 1, location: "5-10栋宿舍＋留一、留二宿舍", risk: 1, checker: "系统初始化", date: "2026-09-01", killStatus: 0, note: "楼下垃圾桶多、绿植密集、积水死角多，蚊虫高危滋生区" },
-  { id: 2, location: "1-4栋、15栋宿舍片区", risk: 2, checker: "系统初始化", date: "2026-09-01", killStatus: 0, note: "生活区潮湿阴暗，蚊虫密度较高，绿植密集" },
-  { id: 3, location: "13-16栋宿舍片区", risk: 2, checker: "系统初始化", date: "2026-09-01", killStatus: 0, note: "校园生活区，绿化带密集易积水" },
-  { id: 4, location: "第一食堂", risk: 1, checker: "系统初始化", date: "2026-09-01", killStatus: 0, note: "后厨排水、餐厨垃圾堆积、潮湿积水，核心高危区域" },
-  { id: 5, location: "第二食堂", risk: 1, checker: "系统初始化", date: "2026-09-01", killStatus: 0, note: "后厨排水、餐厨垃圾堆积、潮湿积水，核心高危区域" },
-  { id: 6, location: "中心人工湖", risk: 1, checker: "系统初始化", date: "2026-09-01", killStatus: 0, note: "大面积静态水域，蚊虫幼虫主要滋生地" },
-  { id: 7, location: "运动场", risk: 2, checker: "系统初始化", date: "2026-09-01", killStatus: 0, note: "看台缝隙、排水沟、草坪低洼积水，易滋生蚊虫" }
+  { id: 1, location: "宿舍区花盆托盘", risk: 1, checker: "示例数据", date: "2026-09-01", killStatus: 0, note: "演示待核查：花盆托盘内可能积水，需现场确认。" },
+  { id: 2, location: "宿舍区闲置桶盆", risk: 2, checker: "示例数据", date: "2026-09-01", killStatus: 0, note: "演示待核查：闲置容器可能存水，建议翻盆倒罐。" },
+  { id: 3, location: "教学楼外围废弃瓶罐", risk: 2, checker: "示例数据", date: "2026-09-01", killStatus: 0, note: "演示待核查：废弃瓶罐可能形成小型积水。" },
+  { id: 4, location: "第一食堂后侧容器", risk: 1, checker: "示例数据", date: "2026-09-01", killStatus: 0, note: "演示待核查：盛水容器需加盖、清空或定期清洗。" },
+  { id: 5, location: "第二食堂排水角落", risk: 1, checker: "示例数据", date: "2026-09-01", killStatus: 0, note: "演示待核查：检查排水处是否有可清除的小型积水。" },
+  { id: 6, location: "中心湖周边废弃容器", risk: 1, checker: "示例数据", date: "2026-09-01", killStatus: 0, note: "演示待核查：重点检查湖边废弃容器；不将湖体本身视为伊蚊孳生点。" },
+  { id: 7, location: "运动场看台瓶罐", risk: 2, checker: "示例数据", date: "2026-09-01", killStatus: 0, note: "演示待核查：看台周边废弃瓶罐可能积水。" }
 ];
 
 const STORAGE_KEY = "campus-mosquito-inspection-v3";
+const REPORTS_KEY = "campus-mosquito-student-reports-v1";
 const state = loadState();
 
 function loadState() {
@@ -27,14 +28,27 @@ const riskClass = risk => ({1: "high", 2: "mid", 3: "low"}[Number(risk)] || "low
 const priority = point => (point.killStatus ? 20 : 0) + Number(point.risk);
 const byPriority = (a, b) => priority(a) - priority(b) || Number(a.risk) - Number(b.risk) || a.id - b.id;
 const formatDateTime = value => new Intl.DateTimeFormat("zh-CN", {year:"numeric", month:"2-digit", day:"2-digit", hour:"2-digit", minute:"2-digit", hour12:false}).format(new Date(value));
-const today = () => new Date().toISOString().slice(0, 10);
+const today = () => { const date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); return date.toISOString().slice(0, 10); };
 const nowLocal = () => { const date = new Date(Date.now() - new Date().getTimezoneOffset() * 60000); return date.toISOString().slice(0, 16); };
 
 function escapeHtml(value) { const node = document.createElement("div"); node.textContent = String(value ?? ""); return node.innerHTML; }
 function searchableText(point) { return `${point.id} ${point.location} ${point.checker} ${point.note}`.toLowerCase(); }
 function toast(message) { const node = document.createElement("div"); node.className = "toast"; node.textContent = message; $("#toastRegion").append(node); setTimeout(() => node.remove(), 2600); }
 
-function renderAll() { renderOverview(); renderPoints(); renderTasks(); refreshSelects(); renderLogs(); }
+function renderAll() { renderOverview(); renderPoints(); renderTasks(); refreshSelects(); renderLogs(); renderReports(); }
+
+function loadReports() {
+  try { const reports = JSON.parse(localStorage.getItem(REPORTS_KEY)); return Array.isArray(reports) ? reports : []; }
+  catch (_) { return []; }
+}
+function renderReports() {
+  const reports = loadReports().sort((a, b) => String(b.createdAt).localeCompare(String(a.createdAt)));
+  const pending = reports.filter(item => item.status === "pending").length;
+  const checking = reports.filter(item => item.status === "checking").length;
+  const resolved = reports.filter(item => item.status === "resolved").length;
+  $("#reportStats").innerHTML = `<span>全部线索 <b>${reports.length}</b></span><span>待核查 <b>${pending}</b></span><span>核查中 <b>${checking}</b></span><span>已处理 <b>${resolved}</b></span>`;
+  $("#reportList").innerHTML = reports.length ? reports.map(item => `<article class="report-card" data-report-id="${escapeHtml(item.id)}"><div><small>${escapeHtml(item.createdAt?.replace("T", " ") || "")}</small><h3>${escapeHtml(item.location || "未填写地点")}</h3><p>${escapeHtml(item.type || "其他积水隐患")} · ${escapeHtml(item.detail || "无补充说明")}</p></div><div class="report-card-actions"><span class="status ${item.status === "resolved" ? "done" : "pending"}">${{pending:"待核查",checking:"核查中",resolved:"已处理"}[item.status] || "待核查"}</span><button type="button" class="task-action" data-report-action="checking" ${item.status === "checking" ? "disabled" : ""}>标记核查中</button><button type="button" class="task-action" data-report-action="resolved" ${item.status === "resolved" ? "disabled" : ""}>标记已处理</button></div></article>`).join("") : `<div class="empty-result">尚无线索。可在手机端演示页提交一条积水隐患。</div>`;
+}
 
 function renderOverview() {
   const points = [...state.points];
@@ -92,7 +106,7 @@ function refreshSelects() {
 function setView(view) {
   $$(".view").forEach(element => element.classList.toggle("active", element.id === `${view}View`));
   $$(".nav-item").forEach(element => element.classList.toggle("active", element.dataset.view === view));
-  $("#pageTitle").textContent = {overview:"工作台", points:"隐患点位", tasks:"排查任务", logs:"排查日志"}[view];
+  $("#pageTitle").textContent = {overview:"工作台", points:"隐患点位", tasks:"排查任务", logs:"排查日志", reports:"公众线索"}[view];
   $(".sidebar").classList.remove("open");
 }
 
@@ -146,6 +160,16 @@ $("#addPointButton").addEventListener("click", () => openPointDialog()); $("#add
 $("#resetToday").addEventListener("click", () => { if (!confirm("恢复默认七大片区并清空排查日志？")) return; state.points = structuredClone(DEFAULT_POINTS); state.logs = []; saveState(); renderAll(); toast("已恢复默认数据"); });
 $("#pointGrid").addEventListener("click", event => { const action = event.target.closest("[data-action]")?.dataset.action, card = event.target.closest("[data-point-id]"); if (!action || !card) return; const point = state.points.find(item => item.id === Number(card.dataset.pointId)); if (action === "edit") openPointDialog(point); if (action === "delete") { $("#deletePointId").value = point.id; $("#deleteMessage").textContent = `将删除“${point.location}”及其关联日志，此操作无法撤销。`; $("#deleteDialog").showModal(); } });
 $("#taskList").addEventListener("click", event => { const button = event.target.closest('[data-action="log"]'), row = event.target.closest("[data-point-id]"); if (button && row) openLogDialog(Number(row.dataset.pointId)); });
+$("#reportList").addEventListener("click", event => {
+  const button = event.target.closest("[data-report-action]"), card = event.target.closest("[data-report-id]");
+  if (!button || !card) return;
+  const reports = loadReports(), report = reports.find(item => item.id === card.dataset.reportId);
+  if (!report) return;
+  report.status = button.dataset.reportAction;
+  localStorage.setItem(REPORTS_KEY, JSON.stringify(reports));
+  renderReports(); toast("线索进度已更新（本机演示）");
+});
+window.addEventListener("storage", event => { if (event.key === REPORTS_KEY) renderReports(); });
 $("#pointForm").addEventListener("submit", event => { event.preventDefault(); try { const originalId = $("#originalPointId").value; upsertPoint({originalId,id:$("#pointId").value,location:$("#pointLocation").value,risk:$("#pointRisk").value,checker:$("#pointChecker").value,date:$("#pointDate").value,killStatus:$("#pointStatus").value,note:$("#pointNote").value}); $("#pointDialog").close(); toast(originalId ? "点位信息已更新" : "新点位已添加"); } catch(error){toast(error.message);} });
 $("#logForm").addEventListener("submit", event => { event.preventDefault(); try { addLog({siteId:$("#logSite").value,time:$("#logTime").value,problem:$("#logProblem").value,handle:$("#logHandle").value,result:$("#logResult").value}); $("#logDialog").close(); setView("logs"); toast("排查日志已保存"); } catch(error){toast(error.message);} });
 $("#deleteForm").addEventListener("submit", event => { event.preventDefault(); try { const removed=deletePoint($("#deletePointId").value); $("#deleteDialog").close(); toast(`已删除 ${removed.location}`); } catch(error){toast(error.message);} });

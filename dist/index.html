@@ -4,23 +4,24 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#123c44">
-  <meta name="description" content="广东医科大学东莞校区校园灭蚊隐患排查与任务调度系统">
+  <meta name="description" content="校园蚊媒孳生地线索上报与排查任务演示系统">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%23123c44'/%3E%3Ccircle cx='32' cy='32' r='17' fill='none' stroke='%235bd3c7' stroke-width='4'/%3E%3Cpath d='M32 17v30M17 32h30' stroke='%23fff' stroke-width='4' stroke-linecap='round'/%3E%3Ccircle cx='41' cy='23' r='5' fill='%23ffb44c'/%3E%3C/svg%3E">
-  <title>校园灭蚊排查系统</title>
+  <title>校园防蚊协同排查系统｜旧版静态原型</title>
   <link rel="stylesheet" href="./styles.css">
 </head>
 <body>
   <div class="app-shell">
     <aside class="sidebar" aria-label="主导航">
-      <a class="brand" href="#overview" aria-label="校园灭蚊排查系统首页">
+      <a class="brand" href="#overview" aria-label="校园防蚊协同排查系统首页">
         <span class="brand-mark" aria-hidden="true"><span></span></span>
-        <span><b>灭蚊排查</b><small>东莞校区</small></span>
+        <span><b>校园防蚊</b><small>旧版静态原型</small></span>
       </a>
       <nav>
         <button class="nav-item active" data-view="overview"><span class="nav-icon">⌂</span>工作台</button>
         <button class="nav-item" data-view="points"><span class="nav-icon">⌖</span>隐患点位</button>
         <button class="nav-item" data-view="tasks"><span class="nav-icon">≡</span>排查任务</button>
         <button class="nav-item" data-view="logs"><span class="nav-icon">◷</span>排查日志</button>
+        <button class="nav-item" data-view="reports"><span class="nav-icon">✉</span>公众线索</button>
       </nav>
       <div class="sidebar-note">
         <span>数据状态</span>
@@ -44,12 +45,14 @@
         </div>
       </header>
 
+      <div class="demo-banner" role="note">这是旧版纯前端原型，数据仅保存在浏览器。新的 Django/SimpleUI 运营后台请运行项目并访问 /admin/；本页数据不会自动迁入后台。<a href="/admin/">打开真实后台 →</a></div>
+
       <section class="view active" id="overviewView" aria-labelledby="pageTitle">
         <div class="overview-grid">
           <section class="risk-hero">
             <div class="hero-copy">
               <span class="eyebrow">今日排查重点</span>
-              <h2 id="heroTitle">中心人工湖</h2>
+              <h2 id="heroTitle">宿舍区花盆托盘</h2>
               <p id="heroNote">大面积静态水域，蚊虫幼虫主要滋生地</p>
               <div class="hero-meta"><span class="risk-pill high">高危</span><span id="heroDate">上次排查 2026-09-01</span></div>
               <button class="light-button" id="startHeroTask">记录本次排查</button>
@@ -133,6 +136,14 @@
             <div class="log-stat"><small>完成整改</small><b id="resolvedCount">0</b></div>
           </aside>
         </div>
+      </section>
+
+      <section class="view" id="reportsView">
+        <section class="panel page-panel">
+          <div class="page-intro"><div><span class="eyebrow dark">公众参与</span><h2>积水隐患线索</h2><p>查看手机端提交的演示线索，记录核查和处理进度。此处数据仅保存在当前浏览器。</p></div><a class="secondary-button" href="./report.html">打开手机端演示</a></div>
+          <div id="reportStats" class="report-stats"></div>
+          <div id="reportList" class="report-list"></div>
+        </section>
       </section>
     </main>
   </div>

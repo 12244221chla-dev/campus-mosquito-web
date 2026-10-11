@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#155b5d">
+  <title>校园防蚊登记｜广东医科大学东莞校区演示</title>
+  <meta name="description" content="校园区域消杀地图与宿舍蚊片领取、处理凭证登记演示系统">
+  <link rel="stylesheet" href="/static/dashboard.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="header-inner">
+      <div class="brand"><span class="brand-symbol" aria-hidden="true">＋</span><div><strong>校园防蚊登记</strong><small>广东医科大学东莞校区 · 参赛演示</small></div></div>
+      <nav class="top-nav" aria-label="主要功能">
+        <button type="button" class="nav-tab is-active" data-panel="areas" aria-selected="true">区域消杀地图</button>
+        <button type="button" class="nav-tab" data-panel="dorms" aria-selected="false">宿舍领取登记</button>
+        <a href="/report.html">积水线索上报</a>
+        <a href="/admin/">运营后台</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="page-container">
+    <div class="notice-bar"><strong>演示系统</strong><span>校园底图由用户提供；图上状态与房间记录仅作功能演示，不代表学校实际消杀或领取情况。正式使用需校方授权并导入真实点位、房间清单。</span></div>
+
+    <section id="areasPanel" class="page-panel" aria-labelledby="areasTitle">
+      <div class="page-heading"><div><p class="eyebrow">01 / 校园区域</p><h1 id="areasTitle">区域消杀地图</h1><p>查看各区域最近处理、计划复查日期和处理记录。点按地图标记查看详情。</p></div><span class="heading-note">处理频率在后台按区域设置</span></div>
+      <div class="metrics" id="areaMetrics" aria-label="区域统计"></div>
+      <div class="area-grid">
+        <section class="card map-card" aria-label="东莞校区地图">
+          <div class="card-heading"><div><h2>东莞校区地图</h2><p>点位叠加在用户提供的2025版校园地图上</p></div><span class="subtle-badge">点位示意</span></div>
+          <div class="map-frame">
+            <img src="/static/assets/gdmu-dongguan-campus-2025.jpg" alt="用户提供的广东医科大学东莞校区2025版校园地图，包含饭堂、宿舍和教学楼等建筑" width="1280" height="930">
+            <div id="mapPins" class="map-pins" aria-label="消杀点位"></div>
+          </div>
+          <div class="legend"><span><i class="dot current"></i>计划内</span><span><i class="dot due"></i>到期复查</span><span><i class="dot unrecorded"></i>暂无记录</span></div>
+        </section>
+        <aside class="card area-side">
+          <div class="card-heading"><div><h2>区域清单</h2><p>按计划周期查看进度</p></div></div>
+          <label class="sr-only" for="areaFilter">筛选处理状态</label>
+          <select id="areaFilter"><option value="all">全部状态</option><option value="current">计划内</option><option value="due">到期复查</option><option value="unrecorded">暂无记录</option></select>
+          <div id="areaList" class="area-list"><p class="empty-state">正在读取区域数据…</p></div>
+          <section id="areaDetail" class="area-detail" aria-live="polite"><p class="empty-state">选择地图点位查看详情。</p></section>
+        </aside>
+      </div>
+      <p class="footnote">“下次复查”按后台设定的演示间隔计算，不是疾控部门规定的统一消杀频率。仅由有权限的人员在后台录入处理记录。</p>
+    </section>
+
+    <section id="dormsPanel" class="page-panel" aria-labelledby="dormsTitle" hidden>
+      <div class="page-heading"><div><p class="eyebrow">02 / 宿舍楼</p><h1 id="dormsTitle">蚊片领取与宿舍处理登记</h1><p>宿管在一楼按房号登记发放；未领取的房间会留在清单里。宿舍处理凭证需后台核对后才计入统计。</p></div><span id="campaignName" class="heading-note">正在读取批次…</span></div>
+      <div class="metrics" id="dormMetrics" aria-label="宿舍统计"></div>
+      <div class="dorm-grid">
+        <section class="card room-card">
+          <div class="card-heading"><div><h2>房间清单</h2><p>当前批次 · 已核对记录</p></div></div>
+          <div class="room-filters"><label for="buildingFilter">宿舍楼</label><select id="buildingFilter"><option value="all">全部楼栋</option></select><label for="roomFilter">状态</label><select id="roomFilter"><option value="all">全部房间</option><option value="notPickedUp">未领取</option><option value="pickedUp">已领取</option><option value="notTreated">未登记处理</option><option value="treated">已核对处理</option></select></div>
+          <div class="table-wrap"><table><thead><tr><th>宿舍</th><th>蚊片领取</th><th>宿舍处理</th></tr></thead><tbody id="roomRows"><tr><td colspan="3">正在读取房间…</td></tr></tbody></table></div>
+        </section>
+        <section class="card registration-card">
+          <div class="card-heading"><div><h2>新增登记</h2><p>先提交，后台核对通过后计入清单</p></div></div>
+          <form id="dormForm" enctype="multipart/form-data">
+            <label for="formBuilding">宿舍楼 <em>*</em></label><select id="formBuilding" required><option value="">请选择宿舍楼</option></select>
+            <label for="formRoom">房号 <em>*</em></label><select id="formRoom" name="room" required disabled><option value="">先选择宿舍楼</option></select>
+            <label for="recordKind">登记事项 <em>*</em></label><select id="recordKind" name="kind" required><option value="pickup">蚊片领取</option><option value="treatment">宿舍灭蚊处理凭证</option></select>
+            <div id="quantityField" class="field-group"><label for="recordQuantity">领取数量</label><input id="recordQuantity" name="quantity" type="number" min="1" max="20" value="1"></div>
+            <div id="methodField" class="field-group" hidden><label for="recordMethod">处理方式 <em>*</em></label><select id="recordMethod" name="method"><option value="">请选择</option><option value="nonflame">经批准的非明火措施</option><option value="professional">专业人员处理</option><option value="other">其他经批准措施</option></select></div>
+            <label for="dormPhoto">现场照片 <span id="photoRequired">（领取登记选填）</span></label><input id="dormPhoto" name="photo" type="file" accept="image/jpeg,image/png,image/webp">
+            <p class="field-help">处理凭证必须上传照片；支持 JPG、PNG、WebP，最多1张、5MB。请勿拍摄人脸或证件。</p>
+            <div id="dormPhotoPreview" class="photo-preview" hidden><img id="dormPhotoImage" alt="待上传凭证预览"><button id="removeDormPhoto" type="button">移除</button></div>
+            <label for="recordNote">备注</label><textarea id="recordNote" name="note" maxlength="200" rows="3" placeholder="例如：宿管发放时间、处理人员或补充说明"></textarea>
+            <button id="dormSubmit" class="primary-button" type="submit">提交登记</button>
+          </form>
+          <p class="safety-note">这里只记录经学校允许的防蚊措施。学生宿舍不应自行点燃明火蚊香或烟雾制品；具体处理须遵守校方和消防要求。</p>
+          <div class="receipts"><h3>本机提交的登记</h3><div id="dormReceipts"><p class="empty-state">暂无登记。</p></div></div>
+        </section>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer">校园防蚊登记 · 参赛原型演示 · 非学校正式业务系统</footer>
+  <div id="toast" role="status" aria-live="polite" class="toast"></div>
+  <script src="/static/dashboard.js" defer></script>
+</body>
+</html>

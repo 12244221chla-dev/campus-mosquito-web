@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0e625c">
+  <meta name="description" content="校园积水隐患随手报与基孔肯雅热防蚊科普演示页面">
+  <title>校园防蚊｜随手报演示</title>
+  <link rel="stylesheet" href="./report.css">
+</head>
+<body>
+  <div class="mobile-shell">
+    <header class="mobile-top"><span class="leaf-mark" aria-hidden="true">✳</span><span>校园防蚊</span><a href="/admin/">运营后台</a></header>
+    <main>
+      <section class="hero">
+        <div class="hero-kicker">蚊媒防控 · 人人参与</div>
+        <h1>看见积水，<br>随手报一下</h1>
+        <p>从清除伊蚊孳生环境做起，助力基孔肯雅热防范。发现花盆托盘、闲置桶盆等可能积水的地方，记录位置，方便后续核查。</p>
+        <a href="#reportForm" class="hero-button">提交隐患线索 <span aria-hidden="true">↗</span></a>
+        <div class="hero-orbit" aria-hidden="true"><span>清积水</span><span>防叮咬</span><span>勤检查</span></div>
+      </section>
+
+      <div class="demo-tip" role="note">功能演示：线索存入当前演示服务器，浏览器只保留本机提交的查询编号。后台须登录后处理；本页面不是学校或疾控部门的正式渠道。请勿填报个人健康信息。</div>
+
+      <section class="content-card steps" aria-labelledby="stepsTitle">
+        <div class="section-label">01 / 防护要点</div>
+        <h2 id="stepsTitle">校园防蚊三件事</h2>
+        <div class="step"><b>01</b><div><h3>定期清理小型积水</h3><p>检查花盆托盘、废弃瓶罐、闲置桶盆等容器，清空并清洁。</p></div></div>
+        <div class="step"><b>02</b><div><h3>做好个人防叮咬</h3><p>外出可穿长袖衣裤，按说明使用驱蚊用品，检查纱门纱窗。</p></div></div>
+        <div class="step"><b>03</b><div><h3>有相关症状及时就医</h3><p>如出现发热、关节痛或皮疹等情况，及时就医，并告知可能的蚊虫叮咬史。</p></div></div>
+        <a class="source-link" href="https://www.chinacdc.cn/jkts/202508/t20250801_309120.html" target="_blank" rel="noopener noreferrer">资料来源：中国疾病预防控制中心 ↗</a>
+      </section>
+
+      <section class="content-card" aria-labelledby="reportTitle">
+        <div class="section-label">02 / 随手报</div>
+        <h2 id="reportTitle">提交积水隐患线索</h2>
+        <p class="section-intro">请描述环境位置和积水容器，供现场人员核查。这里不接收疾病报告。</p>
+        <form id="reportForm">
+          <label for="reportLocation">发现位置 <span>*</span></label>
+          <input id="reportLocation" name="location" maxlength="80" required placeholder="例如：教学楼东侧花坛旁">
+          <label for="reportType">隐患类型 <span>*</span></label>
+          <select id="reportType" name="type" required>
+            <option value="" disabled selected>请选择</option>
+            <option value="花盆托盘积水">花盆托盘积水</option>
+            <option value="桶盆积水">桶盆积水</option>
+            <option value="废弃瓶罐积水">废弃瓶罐积水</option>
+            <option value="排水处积水">排水处积水</option>
+            <option value="其他环境隐患">其他环境隐患</option>
+          </select>
+          <label for="reportDetail">补充说明</label>
+          <textarea id="reportDetail" name="detail" maxlength="200" rows="4" placeholder="描述容器、积水情况和便于寻找的地标"></textarea>
+          <label for="reportPhoto">现场照片</label>
+          <input id="reportPhoto" name="photo" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="photoHelp">
+          <p id="photoHelp" class="photo-help">选填，最多1张，支持 JPG、PNG、WebP，大小不超过 5MB。请勿拍摄人脸、证件等个人信息。</p>
+          <div id="photoPreview" class="photo-preview" hidden>
+            <img id="photoPreviewImage" alt="待上传的现场照片预览">
+            <button id="removePhoto" type="button">移除照片</button>
+          </div>
+          <button type="submit" class="submit-button">提交到演示后台 <span aria-hidden="true">→</span></button>
+          <p class="form-note">线索仅发送到本项目的演示服务器，不会发送给学校、医院或疾控部门。</p>
+        </form>
+      </section>
+
+      <section class="content-card" aria-labelledby="mineTitle">
+        <div class="section-label">03 / 进度查看</div>
+        <h2 id="mineTitle">我的提交进度</h2>
+        <p class="section-intro">本机保存查询编号；状态由后台更新，重新打开本页即可查看。</p>
+        <div id="myReports" class="my-reports"></div>
+      </section>
+    </main>
+    <footer>校园防蚊协同排查 · 参赛原型演示</footer>
+  </div>
+  <div id="announce" role="status" class="announce" aria-live="polite"></div>
+  <script src="./report.js"></script>
+</body>
+</html>
