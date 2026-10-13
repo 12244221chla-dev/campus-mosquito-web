@@ -15,6 +15,10 @@ from pubhealth.services import (create_map_point, create_matter, generate_remind
 
 class ScenarioTemplateTests(TestCase):
     def test_home_and_separate_login_entries(self):
+        html = self.client.get('/').content.decode()
+        self.assertNotIn('<h2>健康知识</h2>', html)
+        self.assertNotIn('一次报备，全流程跟踪', html)
+        self.assertIn('id="chooseScene"', html)
         self.assertEqual(self.client.get('/manage/')['Location'], '/account/?entry=manager&next=/manage/')
         self.assertContains(self.client.get('/'), '健康知识')
         manager = self.client.get('/account/?entry=manager').content.decode()
