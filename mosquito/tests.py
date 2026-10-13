@@ -72,6 +72,16 @@ class ManagementPortalTests(TestCase):
 
 
 class ReportApiTests(TestCase):
+    def test_report_is_same_shell_as_map_and_dorms(self):
+        for url in ['/vector/', '/report.html']:
+            html = self.client.get(url).content.decode()
+            for panel in ['areasPanel', 'dormsPanel', 'reportsPanel']:
+                self.assertIn(f'id="{panel}"', html)
+            self.assertIn('data-panel="reports"', html)
+            self.assertNotIn('class="mobile-shell"', html)
+            self.assertNotIn('href="/report.html"', html)
+            self.assertNotIn('href="./report.css"', html)
+
     def setUp(self):
         self.client = Client(enforce_csrf_checks=True)
         self.payload = {

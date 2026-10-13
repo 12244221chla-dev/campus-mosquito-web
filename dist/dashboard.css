@@ -100,5 +100,14 @@ td:first-child{font-weight:600;color:#2a4946}
 .receipt-row{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid #edf1ef;font-size:11px;color:#4b625e}
 .site-footer{text-align:center;padding:20px;color:#82918d;font-size:11px;border-top:1px solid #e0e9e4}
 .toast:not(:empty){position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:#244947;color:#fff;border-radius:7px;padding:11px 16px;box-shadow:0 5px 22px #1b373b55;font-size:12px;z-index:10;max-width:calc(100vw - 30px)}
+.report-grid{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+.report-grid>*{min-width:0}
+.report-progress #myReports{padding:20px}
+.report-progress .mini-report{border:1px solid #dce7e2;border-radius:8px;padding:16px;margin-bottom:12px}
+.report-progress .mini-report>div{display:flex;justify-content:space-between;gap:14px;align-items:start}
+.report-progress .mini-report p{font-size:13px;line-height:1.6;color:#607873;overflow-wrap:anywhere}
+.report-progress .mini-status{flex-shrink:0;background:#e3f1ed;color:#155b5d;padding:4px 8px;border-radius:5px;font-size:12px}
+.report-progress small,.report-progress .empty-reports{color:#607873;font-size:13px;line-height:1.7}
+@media(max-width:900px){.report-grid{grid-template-columns:1fr}}
 @media(max-width:1100px){.area-grid,.dorm-grid{grid-template-columns:1fr}.area-list{max-height:260px}}
 @media(max-width:720px){.header-inner{padding:13px 16px;display:block}.top-nav{margin-top:14px;overflow:auto;flex-wrap:nowrap}.top-nav button,.top-nav a{padding:9px 10px;font-size:12px}.page-container{padding:15px 13px 40px}.page-heading{display:block;margin-top:24px}.page-heading h1{font-size:23px}.heading-note{display:inline-block;margin-top:10px}.metrics{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.metric{padding:12px}.metric strong{font-size:21px}.map-frame{margin:9px}.map-pin-label{font-size:9px;max-width:58px;padding:3px 4px}.map-pin-dot{width:12px;height:12px;border-width:2px}.notice-bar{font-size:11px}.card-heading{padding:15px}.room-filters{padding:12px}.room-filters select{min-width:100px}.table-wrap{overflow:auto}th,td{padding:10px 11px}}

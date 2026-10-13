@@ -29,9 +29,10 @@ function toast(message) {
 }
 
 function showPanel(name) {
-  const panel = name === "dorms" ? "dorms" : "areas";
+  const panel = ['areas', 'dorms', 'reports'].includes(name) ? name : (location.pathname === '/report.html' ? 'reports' : 'areas');
   $("#areasPanel").hidden = panel !== "areas";
   $("#dormsPanel").hidden = panel !== "dorms";
+  $("#reportsPanel").hidden = panel !== "reports";
   document.querySelectorAll(".nav-tab").forEach(button => {
     const active = button.dataset.panel === panel;
     button.classList.toggle("is-active", active);

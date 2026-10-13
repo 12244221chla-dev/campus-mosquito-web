@@ -1,3 +1,4 @@
+(() => {
 const RECEIPTS_KEY = "campus-mosquito-report-receipts-v1";
 const form = document.querySelector("#reportForm");
 const list = document.querySelector("#myReports");
@@ -124,3 +125,4 @@ form.addEventListener("submit", async event => {
 window.addEventListener("focus", renderReports);
 window.addEventListener("storage", event => { if (event.key === RECEIPTS_KEY) renderReports(); });
 renderReports();
+})();

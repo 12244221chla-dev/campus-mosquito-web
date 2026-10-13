@@ -67,7 +67,7 @@ def public_page(request):
 @ensure_csrf_cookie
 @require_GET
 def report_page(request):
-    html = (settings.BASE_DIR / "dist" / "report.html").read_text(encoding="utf-8")
+    html = (settings.BASE_DIR / "dist" / "dashboard.html").read_text(encoding="utf-8")
     return HttpResponse(html, content_type="text/html; charset=utf-8")
 
 

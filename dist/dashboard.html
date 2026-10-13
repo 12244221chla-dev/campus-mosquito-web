@@ -18,7 +18,7 @@
         <a href="/report/">公共卫生场景</a>
         <button type="button" class="nav-tab is-active" data-panel="areas" aria-selected="true">区域消杀地图</button>
         <button type="button" class="nav-tab" data-panel="dorms" aria-selected="false">宿舍领取登记</button>
-        <a href="/report.html">积水线索上报</a>
+        <button type="button" class="nav-tab" data-panel="reports" aria-selected="false">积水线索上报</button>
         <a href="/">管理驾驶舱</a>
         <a href="/manage/" id="managerLink">管理者模式</a>
         <a href="/account/" id="accountLink">登录 / 注册</a>
@@ -80,9 +80,28 @@
         </section>
       </div>
     </section>
+    <section id="reportsPanel" class="page-panel" aria-labelledby="reportTitle" hidden>
+      <div class="page-heading"><div><p class="eyebrow">03 / 环境隐患</p><h1 id="reportTitle">积水线索上报</h1><p>填写位置、隐患类型及照片，提交后在右侧跟踪核查进度。与地图、宿舍登记直接切换，不离开当前页面。</p></div></div>
+      <div class="report-grid">
+        <section class="card registration-card"><div class="card-heading"><div><h2>提交隐患线索</h2><p>这里只接收环境线索，请勿填写患者或证件信息。</p></div></div>
+          <form id="reportForm" enctype="multipart/form-data">
+            <label for="reportLocation">发现位置 <em>*</em></label><input id="reportLocation" name="location" maxlength="80" required placeholder="例如：教学楼东侧花坛旁">
+            <label for="reportType">隐患类型 <em>*</em></label><select id="reportType" name="type" required><option value="">请选择</option><option>花盆托盘积水</option><option>桶盆积水</option><option>废弃瓶罐积水</option><option>排水处积水</option><option>其他环境隐患</option></select>
+            <label for="reportDetail">补充说明</label><textarea id="reportDetail" name="detail" maxlength="200" rows="5" placeholder="描述积水情况、容器和便于寻找的地标"></textarea>
+            <label for="reportPhoto">现场照片（选填）</label><input id="reportPhoto" name="photo" type="file" accept="image/jpeg,image/png,image/webp"><p class="field-help">最多1张，5MB以内。请避免拍摄人脸和证件。</p>
+            <div id="photoPreview" class="photo-preview" hidden><img id="photoPreviewImage" alt="待上传现场照片预览"><button id="removePhoto" type="button">移除照片</button></div>
+            <button class="primary-button" type="submit">提交隐患线索</button>
+            <p class="field-help">仅发送到本项目演示后台，不是学校或疾控部门的正式渠道。</p>
+          </form>
+        </section>
+        <section class="card report-progress"><div class="card-heading"><div><h2 id="mineTitle">我的提交进度</h2><p>本机保留查询凭证，后台更新核查状态。</p></div></div><div id="myReports" aria-live="polite"></div></section>
+      </div>
+    </section>
   </main>
   <footer class="site-footer">校园防蚊登记 · 参赛原型演示 · 非学校正式业务系统</footer>
   <div id="toast" role="status" aria-live="polite" class="toast"></div>
+  <div id="announce" role="status" aria-live="polite" class="toast"></div>
   <script src="/static/dashboard.js" defer></script>
+  <script src="/static/report.js" defer></script>
 </body>
 </html>
