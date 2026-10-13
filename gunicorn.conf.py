@@ -4,6 +4,8 @@ import threading
 
 
 def post_worker_init(worker):
+    from django.core.management import call_command
+    call_command('seed_pubhealth', templates_only=True, verbosity=0)
     stop = threading.Event()
     worker.reminder_stop = stop
 

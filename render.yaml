@@ -12,7 +12,7 @@ services:
     plan: free
     region: singapore
     buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
-    startCommand: python manage.py migrate --noinput && python manage.py bootstrap_admin && python manage.py seed_demo && python manage.py seed_pubhealth --templates-only && gunicorn config.wsgi:application --config gunicorn_config.py --bind 0.0.0.0:$PORT --workers 1
+    startCommand: python manage.py migrate --noinput && python manage.py bootstrap_admin && python manage.py seed_demo && python manage.py seed_pubhealth --templates-only && gunicorn config.wsgi:application --config gunicorn.conf.py --bind 0.0.0.0:$PORT --workers 1
     healthCheckPath: /health/
     envVars:
       - key: DJANGO_DEBUG
