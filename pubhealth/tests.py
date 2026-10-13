@@ -14,6 +14,26 @@ from pubhealth.services import (create_map_point, create_matter, generate_remind
 
 
 class ScenarioTemplateTests(TestCase):
+    def test_mini_account_requires_csrf_and_keeps_student_permissions(self):
+        client = Client(enforce_csrf_checks=True, SERVER_NAME='127.0.0.1')
+        payload = {'action': 'register', 'role': 'student', 'identifier': '202600011',
+                   'name': '小程序测试', 'password': 'Mini-test-password-937!', 'confirm': 'Mini-test-password-937!'}
+        self.assertEqual(client.post('/api/mini/account/', json.dumps(payload), content_type='application/json').status_code, 403)
+        csrf = client.get('/api/mini/session/').json()['csrfToken']
+        response = client.post('/api/mini/account/', json.dumps(payload), content_type='application/json',
+                              HTTP_X_CSRFTOKEN=csrf, HTTP_REFERER='https://servicewechat.com/test-app/devtools/page-frame.html', secure=True)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(response.json()['authenticated'])
+        self.assertFalse(response.json()['canManage'])
+        self.assertFalse(get_user_model().objects.get(username='student:202600011').is_staff)
+
+    def test_mini_login_uses_existing_account(self):
+        user = get_user_model().objects.create_user('teacher:13800000000', password='Mini-test-password-937!')
+        response = self.client.post('/api/mini/account/', json.dumps({'role': 'teacher', 'identifier': '13800000000',
+            'password': 'Mini-test-password-937!'}), content_type='application/json')
+        self.assertTrue(response.json()['authenticated'])
+        self.assertFalse(response.json()['canManage'])
+        self.assertEqual(self.client.get('/api/mini/session/').json()['name'], user.username)
     def test_home_and_separate_login_entries(self):
         html = self.client.get('/').content.decode()
         self.assertNotIn('<h2>健康知识</h2>', html)

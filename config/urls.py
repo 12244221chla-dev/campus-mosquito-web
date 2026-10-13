@@ -5,9 +5,13 @@ from django.views.generic import RedirectView
 from mosquito import views
 from mosquito import portal
 from pubhealth import views as pubhealth_views
+from pubhealth import mini
 
 
 urlpatterns = [
+    path('api/mini/session/', mini.session),
+    path('api/mini/account/', mini.account),
+    path('api/mini/logout/', mini.signout),
     path("account/", portal.account_page),
     path("account/logout/", portal.logout_view),
     path("api/session/", portal.session_info),
