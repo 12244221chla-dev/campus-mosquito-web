@@ -76,7 +76,7 @@ function selectScenario(code) {
   $("#submitBanner").hidden = true;
   $("#tplBadge").textContent = selected.icon + " " + selected.name;
   $("#tplSummary").textContent = selected.summary;
-  $("#slaStrip").innerHTML = `该场景承诺 <b>${selected.acceptSlaHours} 小时</b>内受理、总处置时限 <b>${selected.slaHours} 小时</b>；
+  $("#slaStrip").innerHTML = `该场景当前演示配置：<b>${selected.acceptSlaHours} 小时</b>内受理、总处置时限 <b>${selected.slaHours} 小时</b>；
     到期前 <b>${selected.reminderLeadHours} 小时</b>自动提醒承办人，超期后自动升级督办。${selected.requiresPhoto ? " 提交时<b>必须上传现场照片</b>。" : ""}`;
   $("#photoHint").textContent = selected.requiresPhoto ? "（必填）" : "（选填）";
   $("#photoInput").required = selected.requiresPhoto;

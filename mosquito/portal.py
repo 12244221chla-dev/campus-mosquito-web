@@ -169,7 +169,7 @@ FORM_TYPES = {"map": (MapForm, "添加地图"), "area": (AreaForm, "编辑地图
 
 def manage(request):
     if not request.user.is_authenticated:
-        return redirect("/account/")
+        return redirect("/account/?entry=manager&next=/manage/")
     if not can_manage(request.user):
         return render(request, "mosquito/denied.html", status=403)
     action = request.GET.get("action", "area")

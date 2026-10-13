@@ -15,6 +15,7 @@ from pubhealth.services import (create_map_point, create_matter, generate_remind
 
 class ScenarioTemplateTests(TestCase):
     def test_home_and_separate_login_entries(self):
+        self.assertEqual(self.client.get('/manage/')['Location'], '/account/?entry=manager&next=/manage/')
         self.assertContains(self.client.get('/'), '健康知识')
         manager = self.client.get('/account/?entry=manager').content.decode()
         user = self.client.get('/account/?entry=user').content.decode()
