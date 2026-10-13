@@ -19,8 +19,13 @@ class ScenarioTemplateTests(TestCase):
         self.assertNotIn('<h2>健康知识</h2>', html)
         self.assertNotIn('一次报备，全流程跟踪', html)
         self.assertIn('id="chooseScene"', html)
+        self.assertNotIn('brand-mark', html)
+        self.assertNotIn('id="startScene"', html)
+        self.assertNotIn('id="scenePanel" hidden', html)
+        self.assertIn('/static/notion-theme.css', html)
+        self.assertNotIn('蚊虫防控是第一个落地场景', html)
         self.assertEqual(self.client.get('/manage/')['Location'], '/account/?entry=manager&next=/manage/')
-        self.assertContains(self.client.get('/'), '健康知识')
+        self.assertContains(self.client.get('/'), '公共卫生场景')
         manager = self.client.get('/account/?entry=manager').content.decode()
         user = self.client.get('/account/?entry=user').content.decode()
         self.assertIn('value="manager"', manager)
@@ -154,7 +159,7 @@ class PublicApiTests(TestCase):
         # 报备与进度跟踪对公众开放
         self.assertEqual(self.client.get("/report/").status_code, 200)
         # 驾驶舱改为管理端：访客先去登录，登录后回到驾驶舱
-        self.assertContains(self.client.get('/'), '健康知识')
+        self.assertContains(self.client.get('/'), '公共卫生场景')
         redirect = self.client.get("/cockpit/")
         self.assertEqual(redirect.status_code, 302)
         self.assertEqual(redirect["Location"], "/account/?next=/cockpit/")
