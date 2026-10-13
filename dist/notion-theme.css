@@ -1,6 +1,7 @@
 /* Notion-style reference: flat document surfaces, readable hierarchy, stable interactions. */
 :root{--ink:#37352f;--ink-2:#595750;--muted:#69665f;--bg:#f7f6f3;--line:#e5e7eb;--primary:#0f7b6c;--card:#fff;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;color:#37352f;background:#f7f6f3}
 body{background:#f7f6f3;color:#37352f;font-family:system-ui,-apple-system,"Segoe UI","Microsoft YaHei",sans-serif}
+[hidden]{display:none!important}
 .app{max-width:1500px;margin:0 auto;padding:24px 32px}
 .topbar,.site-header{background:#f7f6f3!important;color:#37352f;box-shadow:none;border-radius:0;border:0;border-bottom:1px solid #e5e7eb}
 .topbar{padding:24px 0;margin-bottom:32px;gap:24px;flex-wrap:wrap}
@@ -35,6 +36,13 @@ a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,te
 .group:hover .drag-handle,.group:focus-visible .drag-handle{opacity:1}
 .home-note,.footer,.site-footer{font-size:12px;color:#69665f;line-height:1.8;background:transparent}
 .home-note{margin:24px 0}.footer{margin-top:28px;border-top:1px solid #e5e7eb;padding:20px 0}
+.scene-nav{position:relative}
+.home-nav .scene-trigger{display:inline-flex;align-items:center;gap:6px;min-height:42px;padding:9px 14px;border:1px solid transparent;border-radius:6px;background:transparent;color:#37352f;font-size:14px;font-weight:500;line-height:1.5;white-space:nowrap}
+.home-nav .scene-trigger:hover,.home-nav .scene-trigger[aria-expanded=true]{background:#efedea}
+.scene-dropdown{position:absolute;top:100%;left:0;z-index:30;width:224px;padding-top:8px;max-width:calc(100vw - 32px)}
+.scene-menu{display:flex;flex-direction:column;padding:6px;background:#fff;border:1px solid #e5e7eb;border-radius:6px;box-shadow:0 2px 8px #37352f0d}
+.home-nav .scene-menu a{display:flex;justify-content:flex-start;width:100%;padding:10px 12px;border-radius:4px;white-space:normal}
+.scene-menu p{margin:8px;font-size:13px;color:#69665f;line-height:1.6}
 input,select,textarea{background:#fff;color:#37352f;border:1px solid #e5e7eb;border-radius:6px;box-shadow:none}
 .notice,.notice-bar,.heading-note{background:#efedea;border:1px solid #e5e7eb;border-radius:6px;color:#595750}
 .card-head p,.card-heading p,.page-heading p,.field-help{color:#69665f}

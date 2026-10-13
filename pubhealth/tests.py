@@ -19,6 +19,8 @@ class ScenarioTemplateTests(TestCase):
         self.assertNotIn('<h2>健康知识</h2>', html)
         self.assertNotIn('一次报备，全流程跟踪', html)
         self.assertIn('id="chooseScene"', html)
+        self.assertIn('aria-controls="sceneDropdown"', html)
+        self.assertIn('id="sceneDropdown" class="scene-dropdown" hidden', html)
         self.assertNotIn('brand-mark', html)
         self.assertNotIn('id="startScene"', html)
         self.assertNotIn('id="scenePanel" hidden', html)
