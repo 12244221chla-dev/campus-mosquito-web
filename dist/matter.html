@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f6b6d">
+  <title>线上报备与进度跟踪 · 校园公共卫生管理平台</title>
+  <meta name="description" content="六大公共卫生场景统一线上报备，提交即生成事项编号、处置时限与自动提醒；报备与进度查询合在同一个页面，无需来回切换">
+  <link rel="stylesheet" href="/static/cockpit.css">
+  <link rel="stylesheet" href="/static/matter.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">✚</span>
+        <div class="brand-text">
+          <strong>校园公共卫生 · 线上报备与进度跟踪</strong>
+          <small>一次填写，全流程跟踪 · 提交即生成编号、时限与自动提醒</small>
+        </div>
+      </div>
+      <nav class="topnav" aria-label="主导航">
+        <a class="is-active" href="/report/">报备与进度跟踪</a>
+        <a href="/vector/">防蚊专项</a>
+        <a href="/">返回首页</a>
+        <a href="/cockpit/">管理驾驶舱</a>
+      </nav>
+      <div class="topbar-right">
+        <span id="engineState" class="engine-state"><i></i>自动提醒引擎运行中</span>
+        <a class="login-link" href="/account/?entry=manager&next=/cockpit/">管理者模式</a>
+        <a class="login-link" href="/account/?entry=user">用户登录</a>
+      </div>
+    </header>
+
+    <p class="notice">
+      <strong>说明</strong>
+      <span>同一套报备能力复用于 <b>蚊虫消杀报备、传染病症状上报、卫生检查、公共区域消毒、健康宣教、疫情应急上报</b>；不同场景的字段与时限由后台模板配置。报备与进度查询在同一个页面内完成，提交后自动跳到下方进度区。请勿填报真实患者个人信息。<b>数据驾驶舱与全量台账仅对管理人员开放</b>，访客无需登录即可报备与查询本人事项进度。</span>
+    </p>
+
+    <ol class="flow-strip">
+      <li><b>1</b> 选择场景</li>
+      <li><b>2</b> 填写报备</li>
+      <li><b>3</b> 生成编号与时限</li>
+      <li><b>4</b> 查询进度 · 自动提醒</li>
+    </ol>
+
+    <!-- ① 报备 -->
+    <section id="report" class="panel">
+      <div class="card">
+        <div class="card-head">
+          <div><h2><span class="step-num">1</span> 选择公共卫生场景</h2><p>不同场景对应不同的报备字段、承办单位与处置时限</p></div>
+        </div>
+        <div class="scenario-picker" id="scenarioPicker"></div>
+      </div>
+
+      <div class="card" id="formCard" hidden>
+        <div class="submit-banner" id="submitBanner" hidden></div>
+        <div class="card-head">
+          <div><h2><span class="step-num">2</span> 填写报备信息 <span class="tpl-badge" id="tplBadge"></span></h2><p id="tplSummary"></p></div>
+          <button type="button" class="btn" id="changeScenario">更换场景</button>
+        </div>
+        <p class="sla-strip" id="slaStrip"></p>
+        <form id="reportForm" enctype="multipart/form-data">
+          <div class="form-grid">
+            <label class="col-2">事项标题 <em>*</em>
+              <input name="title" maxlength="120" required placeholder="一句话说明发现的问题，例如：9栋后方绿化带积水未清">
+            </label>
+            <label>发生地点 <em>*</em>
+              <input name="location" maxlength="100" required placeholder="例如：9栋宿舍楼后方绿地">
+            </label>
+            <label>报备人（选填）
+              <input name="reporter" maxlength="60" placeholder="姓名或岗位">
+            </label>
+            <label>联系方式（选填）
+              <input name="contact" maxlength="60" placeholder="便于承办人联系">
+            </label>
+          </div>
+          <div class="form-grid" id="dynamicFields"></div>
+          <label class="full">情况描述
+            <textarea name="detail" rows="3" maxlength="1000" placeholder="补充时间、范围、已采取措施等信息"></textarea>
+          </label>
+          <label class="full">现场照片 <span class="hint" id="photoHint"></span>
+            <input id="photoInput" name="photo" type="file" accept="image/jpeg,image/png,image/webp">
+          </label>
+          <p class="field-help">支持 JPG、PNG、WebP，单张 5MB 以内。请避免拍摄人脸、证件等个人信息。</p>
+          <div id="photoPreview" class="photo-preview" hidden><img id="photoImage" alt="待上传照片预览"><button type="button" id="removePhoto" class="btn">移除</button></div>
+          <div class="submit-row">
+            <button type="submit" class="btn primary lg" id="submitBtn">提交报备</button>
+            <span class="hint">提交后系统自动生成事项编号与处置时限，并在临近到期、超期时自动提醒承办人。</span>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <!-- ② 进度（同一页面的下半部分，提交后自动跳到此处） -->
+    <section id="track" class="panel">
+      <div class="card">
+        <div class="card-head">
+          <div><h2><span class="step-num">3</span> 我的报备与进度跟踪</h2><p>输入形如 WZ-20261012-0001 的事项编号，查看状态、时限与全部办理轨迹；刚提交的编号会自动列在下方</p></div>
+          <a class="link" href="#report">继续报备 →</a>
+        </div>
+        <div class="track-search">
+          <input id="trackInput" placeholder="请输入事项编号，例如 WZ-20261012-0001">
+          <button type="button" class="btn primary" id="trackBtn">查询进度</button>
+        </div>
+        <p class="hint" id="myCodesHint"></p>
+        <div id="myCodes" class="my-codes"></div>
+      </div>
+      <div class="card" id="trackResultCard" hidden>
+        <div class="card-head">
+          <div><span class="drawer-code" id="trackCode"></span><h2 id="trackTitle" style="margin-top:4px"></h2></div>
+          <span class="hint" id="trackStamp"></span>
+        </div>
+        <div id="trackDetail"></div>
+      </div>
+    </section>
+
+    <footer class="foot">校园公共卫生管理平台 · 参赛原型 · 数据可追溯 / 自动提醒为核心价值</footer>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/static/matter.js" defer></script>
+</body>
+</html>

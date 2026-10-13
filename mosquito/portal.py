@@ -50,9 +50,31 @@ class RegistrationForm(forms.Form):
         return data
 
 
+def _safe_next(raw, fallback):
+    """只接受站内相对路径，避免登录后被跳到外部地址。"""
+    raw = (raw or "").strip()
+    if raw.startswith("/") and not raw.startswith("//"):
+        return raw
+    return fallback
+
+
+# 仅管理人员可进入的入口；非管理人员被指向这些地址时改去报备页，避免登录来回跳
+MANAGER_ONLY_PREFIXES = ("/admin", "/manage", "/api/v1/overview", "/api/v1/matters/list",
+                         "/api/v1/reminders", "/api/v1/timeline", "/api/v1/map", "/cockpit")
+
+
+def _landing_for(user, target):
+    if can_manage(user):
+        return target
+    if target == "/" or target.startswith(MANAGER_ONLY_PREFIXES):
+        return "/report/"
+    return target
+
+
 def account_page(request):
     registering = request.GET.get("mode") == "register"
     form = RegistrationForm(request.POST or None) if registering else None
+    next_url = request.POST.get("next") or request.GET.get("next") or ""
     error = ""
     if request.method == "POST":
         if registering and form.is_valid():
@@ -60,7 +82,7 @@ def account_page(request):
                 password=form.cleaned_data["password"], first_name=form.cleaned_data["name"])
             AccountProfile.objects.create(user=user, role=form.cleaned_data["role"], identifier=form.cleaned_data["identifier"].strip())
             login(request, user)
-            return redirect("/")
+            return redirect("/report/")
         if not registering:
             role = request.POST.get("role", "student")
             identifier = request.POST.get("identifier", "").strip()
@@ -68,9 +90,12 @@ def account_page(request):
             user = authenticate(request, username=username, password=request.POST.get("password", ""))
             if user and (role != "manager" or can_manage(user)):
                 login(request, user)
-                return redirect("/manage/" if can_manage(user) else "/")
+                fallback = "/cockpit/" if can_manage(user) else "/"
+                return redirect(_landing_for(user, _safe_next(next_url, fallback)))
             error = "账号、身份或密码不正确"
-    return render(request, "mosquito/account.html", {"registering": registering, "form": form, "error": error})
+    return render(request, "mosquito/account.html", {"registering": registering, "form": form,
+                                                     "error": error, "next": next_url,
+                                                     "manager_entry": request.GET.get('entry') == 'manager' or next_url.startswith('/cockpit')})
 
 
 @require_POST

@@ -1,9 +1,10 @@
 from django.contrib import admin
-from django.urls import path
+from django.urls import include, path
 from django.views.generic import RedirectView
 
 from mosquito import views
 from mosquito import portal
+from pubhealth import views as pubhealth_views
 
 
 urlpatterns = [
@@ -16,7 +17,14 @@ urlpatterns = [
     path("admin/report-photos/<uuid:report_id>/", views.report_photo, name="report-photo"),
     path("admin/dorm-record-photos/<uuid:record_id>/", views.dorm_record_photo, name="dorm-record-photo"),
     path("admin/", admin.site.urls),
-    path("", views.public_page, name="public-home"),
+    # 公共卫生管理平台：驾驶舱 + 报备与进度跟踪（合二为一，单一入口）
+    path("", pubhealth_views.home_page, name="public-health-home"),
+    path("cockpit/", pubhealth_views.cockpit_page, name="cockpit"),
+    path("report/", pubhealth_views.matter_page, name="matter-report"),
+    path("track/", RedirectView.as_view(url="/report/#track", permanent=False), name="matter-track-page"),
+    path("api/v1/", include("pubhealth.urls")),
+    # 防蚊专项页面（原首页，保留兼容）
+    path("vector/", views.public_page, name="vector-home"),
     path("report.html", views.report_page, name="public-report"),
     path("index.html", RedirectView.as_view(url="/", permanent=False)),
     path("report.css", RedirectView.as_view(url="/static/report.css", permanent=False)),

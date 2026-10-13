@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0f6b6d">
+  <title>校园公共卫生管理平台 · 数据驾驶舱</title>
+  <meta name="description" content="校园公共卫生事项一体化管理：线上报备、进度跟踪、自动提醒、数据统计与全流程可追溯">
+  <link rel="stylesheet" href="/static/cockpit.css">
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="brand-mark" aria-hidden="true">✚</span>
+        <div class="brand-text">
+          <strong>校园公共卫生管理平台</strong>
+          <small>线上报备 · 进度跟踪 · 自动提醒 · 数据统计 · 全程可追溯</small>
+        </div>
+      </div>
+      <nav class="topnav" aria-label="主导航">
+        <a href="/">返回健康首页</a>
+        <a class="is-active" href="/cockpit/">数据驾驶舱</a>
+        <a href="/report/">报备与进度跟踪</a>
+        <a href="/vector/">防蚊专项</a>
+        <a href="/manage/">管理台</a>
+        <a href="/admin/">后台</a>
+      </nav>
+      <div class="topbar-right">
+        <span id="userChip" class="user-chip">管理端</span>
+        <span id="engineState" class="engine-state" title="每次打开驾驶舱会自动巡检在办事项并生成提醒"><i></i>自动提醒引擎运行中</span>
+        <span id="clock" class="clock">--:--</span>
+        <button type="button" id="logoutBtn" class="logout-btn" title="退出管理端登录">退出</button>
+      </div>
+    </header>
+
+    <p class="notice">
+      <strong>演示环境</strong>
+      <span>六大公共卫生场景共用同一套「报备—跟踪—提醒—统计」引擎；<b>蚊虫消杀报备</b>为第一个落地场景。数据为演示数据，不代表学校真实业务情况。</span>
+    </p>
+
+    <section class="kpi-row" id="kpiRow" aria-label="核心指标"></section>
+
+    <section class="alert-bar" id="alertBar" aria-label="应急与超期预警"></section>
+
+    <section class="grid">
+      <div class="card span-8">
+        <div class="card-head">
+          <div><h2>场景矩阵</h2><p>按场景查看事项规模、在办与超期情况，点击场景可下钻台账</p></div>
+          <span class="hint">共 <b id="scenarioTotal">0</b> 个场景</span>
+        </div>
+        <div class="scenario-grid" id="scenarioGrid"></div>
+      </div>
+
+      <div class="card span-4">
+        <div class="card-head">
+          <div><h2>状态分布</h2><p>全部事项当前所处环节</p></div>
+        </div>
+        <div class="donut-wrap">
+          <svg id="donutChart" viewBox="0 0 220 220" role="img" aria-label="事项状态分布"></svg>
+          <ul class="donut-legend" id="donutLegend"></ul>
+        </div>
+      </div>
+
+      <div class="card span-8">
+        <div class="card-head">
+          <div><h2>近 14 天报备与办结趋势</h2><p>柱形为每日报备量，折线为每日办结量</p></div>
+          <div class="legend-inline">
+            <span><i class="swatch bar"></i>报备</span>
+            <span><i class="swatch line"></i>办结</span>
+          </div>
+        </div>
+        <div class="trend-wrap"><svg id="trendChart" viewBox="0 0 720 240" role="img" aria-label="近14天趋势"></svg></div>
+      </div>
+
+      <div class="card span-4">
+        <div class="card-head">
+          <div><h2>办理效能</h2><p>近 7 天与整体表现</p></div>
+        </div>
+        <div class="eff-list" id="effList"></div>
+        <div class="eff-bars" id="effBars"></div>
+      </div>
+
+      <div class="card span-4 remind-card">
+        <div class="card-head">
+          <div><h2>自动提醒待办 <span class="count-pill" id="remindCount">0</span></h2><p>到点自动生成，确认后写入流水</p></div>
+          <a class="link" href="/report/#track">全部提醒 →</a>
+        </div>
+        <div class="reminder-list" id="reminderList"></div>
+      </div>
+
+      <div class="card span-4">
+        <div class="card-head">
+          <div><h2>超期预警</h2><p>已过处置时限的在办事项</p></div>
+        </div>
+        <div class="overdue-list" id="overdueList"></div>
+      </div>
+
+      <div class="card span-4 timeline-card">
+        <div class="card-head">
+          <div><h2>最近办理流水</h2><p>每一次流转与提醒都留痕，可追溯</p></div>
+        </div>
+        <div class="timeline" id="timelineList"></div>
+      </div>
+
+      <div class="card span-12">
+        <div class="card-head">
+          <div>
+            <h2>消杀点位态势地图</h2>
+            <p>点按地图任意位置即可<b>自定义点位</b>：<b class="mk-done">已处理</b>为绿点，<b class="mk-pending">未处理</b>为红点，一眼看清哪里还没消杀</p>
+          </div>
+          <div class="map-tools">
+            <label>切换地图 <select id="mapSwitch"><option value="default">东莞校区原始底图</option></select></label>
+            <a href="/manage/?action=map">导入校园地图</a>
+            <div class="legend-inline">
+              <span><i class="dot point-done"></i>已处理</span>
+              <span><i class="dot point-pending"></i>未处理</span>
+            </div>
+            <button type="button" class="btn primary" id="addPointBtn">＋ 自定义点位</button>
+          </div>
+        </div>
+        <p class="map-tip" id="mapTip" hidden></p>
+        <div class="map-layout">
+          <div class="map-frame" id="mapFrame">
+            <img id="campusMap" src="/static/assets/gdmu-dongguan-campus-2025.jpg" alt="校园底图" width="1280" height="930">
+            <div class="map-pins" id="mapPins"></div>
+            <span class="map-ghost" id="mapGhost" hidden></span>
+          </div>
+          <aside class="map-side">
+            <div class="map-metrics" id="mapMetrics"></div>
+            <div class="point-form" id="pointForm" hidden></div>
+            <div class="point-detail" id="pointDetail"></div>
+            <div class="area-mini-list" id="mapPointList"></div>
+          </aside>
+        </div>
+      </div>
+
+      <div class="card span-12">
+        <div class="card-head">
+          <div><h2>事项总台账</h2><p>可筛选、可下钻，点击任意条目查看完整办理轨迹</p></div>
+          <div class="filters">
+            <select id="filterScenario"><option value="all">全部场景</option></select>
+            <select id="filterStatus">
+              <option value="all">全部状态</option>
+              <option value="open">仅在办</option>
+              <option value="overdue">仅超期</option>
+              <option value="submitted">待受理</option>
+              <option value="processing">处理中</option>
+              <option value="review">待复核</option>
+              <option value="done">已完成</option>
+              <option value="rejected">已退回</option>
+            </select>
+            <input id="filterKeyword" type="search" placeholder="搜索编号 / 标题 / 地点">
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="ledger">
+            <thead><tr>
+              <th>编号</th><th>场景</th><th>事项</th><th>地点</th><th>状态</th>
+              <th>进度</th><th>时限</th><th>承办</th><th>报备时间</th>
+            </tr></thead>
+            <tbody id="ledgerRows"><tr><td colspan="9" class="empty">正在读取…</td></tr></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <footer class="foot">
+      校园公共卫生管理平台 · 参赛原型 · 数据可追溯 / 自动提醒为核心价值 · 非学校正式业务系统
+    </footer>
+  </div>
+
+  <div id="drawer" class="drawer" hidden>
+    <div class="drawer-mask" data-close></div>
+    <aside class="drawer-panel" role="dialog" aria-modal="true" aria-label="事项详情">
+      <header class="drawer-head">
+        <div><span class="drawer-code" id="drawerCode"></span><h3 id="drawerTitle"></h3></div>
+        <button type="button" class="icon-btn" data-close aria-label="关闭">✕</button>
+      </header>
+      <div class="drawer-body" id="drawerBody"></div>
+    </aside>
+  </div>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script src="/static/cockpit.js" defer></script>
+</body>
+</html>

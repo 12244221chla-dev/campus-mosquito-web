@@ -10,9 +10,9 @@ from .models import (
 )
 
 
-admin.site.site_header = "校园防蚊协同排查｜运营后台"
-admin.site.site_title = "校园防蚊后台"
-admin.site.index_title = "线索与排查管理（演示系统）"
+admin.site.site_header = "校园公共卫生管理平台｜运营后台"
+admin.site.site_title = "校园公共卫生管理"
+admin.site.index_title = "事项、提醒与防蚊协同管理（演示系统）"
 
 admin.site.register(CampusMap)
 admin.site.register(AccountProfile)

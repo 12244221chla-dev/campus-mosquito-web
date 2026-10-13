@@ -148,7 +148,7 @@ class ReportApiTests(TestCase):
         self.assertEqual(HazardReport.objects.count(), 0)
 
     def test_invalid_data_rejected(self):
-        token = self.client.get("/").cookies["csrftoken"].value
+        token = self.client.get("/report/").cookies["csrftoken"].value
         self.payload["type"] = "其他任意类别"
         response = self.client.post(
             "/api/reports/", data=json.dumps(self.payload), content_type="application/json",
@@ -171,7 +171,7 @@ class AdminTests(TestCase):
         self.client.force_login(user)
         dashboard = self.client.get("/admin/")
         self.assertEqual(dashboard.status_code, 200)
-        self.assertContains(dashboard, "校园防蚊")
+        self.assertContains(dashboard, "校园公共卫生")
         self.assertContains(dashboard, "/admin/mosquito/hazardreport/")
 
     def test_resolved_status_requires_processing_note(self):
