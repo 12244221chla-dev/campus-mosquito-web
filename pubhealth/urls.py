@@ -1,8 +1,14 @@
 from django.urls import path
 
-from . import views
+from . import views, hygiene
 
 urlpatterns = [
+    path('hygiene/', hygiene.home),
+    path('hygiene/binding/', hygiene.bind_room),
+    path('hygiene/evidence/', hygiene.upload_evidence),
+    path('hygiene/records/', hygiene.create),
+    path('hygiene/records/<uuid:identifier>/', hygiene.detail),
+    path('hygiene/photos/<uuid:identifier>/', hygiene.photo),
     path("overview/", views.overview, name="ph-overview"),
     path("scenarios/", views.scenario_list, name="ph-scenarios"),
     path("matters/", views.matter_collection, name="ph-matter-collection"),

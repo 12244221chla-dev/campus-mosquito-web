@@ -111,6 +111,15 @@ SIMPLEUI_CONFIG = {
     "system_keep": True,
     "menus": [
         {
+            "name": "宿舍卫生检查",
+            "icon": "fa fa-check-square-o",
+            "models": [
+                {"name": "学生检查授权", "url": "/admin/pubhealth/hygieneinspector/"},
+                {"name": "学生宿舍绑定确认", "url": "/admin/pubhealth/dormbinding/"},
+                {"name": "宿舍检查档案", "url": "/admin/pubhealth/dorminspection/"},
+            ],
+        },
+        {
             "name": "防蚊协同业务",
             "icon": "fa fa-leaf",
             "models": [

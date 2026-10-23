@@ -2,6 +2,50 @@ from django.contrib import admin
 from django.utils.html import format_html
 
 from .models import HealthMatter, MapPoint, MatterEvent, Reminder, ScenarioTemplate
+from .hygiene_models import DormBinding, HygieneInspector, DormInspection
+
+
+class StudentOnlyAdmin(admin.ModelAdmin):
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        if db_field.name == 'user':
+            from django.contrib.auth import get_user_model
+            kwargs['queryset'] = get_user_model().objects.filter(accountprofile__role='student', is_active=True)
+        return super().formfield_for_foreignkey(db_field, request, **kwargs)
+
+
+@admin.register(DormBinding)
+class DormBindingAdmin(StudentOnlyAdmin):
+    list_display = ('user', 'room', 'approved', 'updated_at')
+    list_filter = ('approved', 'room__building')
+    search_fields = ('user__username', 'room__building', 'room__room_number')
+    readonly_fields = ('updated_at',)
+
+
+@admin.register(HygieneInspector)
+class HygieneInspectorAdmin(StudentOnlyAdmin):
+    list_display = ('user', 'active')
+    list_filter = ('active',)
+    search_fields = ('user__username',)
+
+
+@admin.register(DormInspection)
+class DormInspectionAdmin(admin.ModelAdmin):
+    list_display = ('room_label', 'inspected_on', 'inspector', 'score', 'passed', 'created_at')
+    list_filter = ('passed', 'inspected_on', 'room__building')
+    search_fields = ('room_label', 'inspector__username')
+    readonly_fields = ('id', 'room', 'room_label', 'inspector', 'inspected_on', 'items', 'score', 'passed', 'created_at', 'evidence_links')
+    exclude = ('submission_key',)
+
+    @admin.display(description='逐项照片（需要登录）')
+    def evidence_links(self, obj):
+        from django.utils.html import format_html_join
+        return format_html_join(' · ', '<a href="/api/v1/hygiene/photos/{}/" target="_blank" rel="noopener">{}</a>', ((p.id, p.item_key) for p in obj.evidence.all()))
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 @admin.register(ScenarioTemplate)

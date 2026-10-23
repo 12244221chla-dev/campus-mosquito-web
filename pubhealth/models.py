@@ -8,6 +8,8 @@
 
 import uuid
 
+from .hygiene_models import DormBinding, HygieneInspector, DormInspection, HygieneEvidence
+
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
