@@ -20,6 +20,17 @@ class ManagementPortalTests(TestCase):
     def setUp(self):
         self.manager = get_user_model().objects.create_superuser('portal-manager', password='Test-password-827!')
 
+    def test_admin_frames_are_same_origin_only(self):
+        self.client.force_login(self.manager)
+        for path in ['/admin/', '/admin/auth/user/']:
+            response = self.client.get(path)
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response['X-Frame-Options'], 'SAMEORIGIN')
+
+    def test_non_admin_pages_still_deny_frames(self):
+        response = self.client.get('/health/')
+        self.assertEqual(response['X-Frame-Options'], 'DENY')
+
     def test_student_registration_cannot_manage(self):
         response = self.client.post('/account/?mode=register', {'role': 'student', 'identifier': '20260001',
             'name': '测试学生', 'password': 'Test-password-827!', 'confirm': 'Test-password-827!'})
